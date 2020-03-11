@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Title</title>
+    <link href="https://fonts.googleapis.com/css?family=Roboto:100i,300,400,500,700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="assets/css/3d.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r83/three.js" rel="script"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/1.20.4/TweenMax.min.js" rel="script"></script>
+</head>
+<body>
+<main>
+    <div class="slider">
+        <div class="content">
+            <div class="container-titles">
+                <h2 class="slider-link active" data-slide="0" data-form="form-login">S'identifier</h2>
+                <h2 class="slider-link" data-slide="1" data-form="form-register">S'inscrire</h2>
+            </div>
+            <div class="container-form">
+                <form action="index.html" class="form-login active">
+                    <span>
+                        <input type="text" required id="loginEmail">
+                        <label for="loginEmail">Email</label>
+                    </span>
+                    <span>
+                        <input type="password" required id="loginPw">
+                        <label for="loginPw">Mot de passe</label>
+                    </span>
+                    <button type="submit">Valider</button>
+                </form>
+                <form action="index.html" class="form-register">
+                    <span>
+                        <input type="text" required id="registerPseudo">
+                        <label for="registerPseudo">Pseudo</label>
+                    </span>
+                    <span>
+                        <input type="text" required id="registerEmail">
+                        <label for="registerEmail">Email</label>
+                    </span>
+                    <span>
+                        <input type="text" required id="registerPw">
+                        <label for="registerPw">Mot de passe</label>
+                    </span>
+                    <button type="submit">Valider</button>
+                </form>
+            </div>
+        </div>
+
+        <img src="assets/images/thor4.jpg" alt="film le Joker">
+        <img src="assets/images/rings.jpg" alt="film the rings">
+
+    </div>
+</main>
+
+<script src="assets/js/3d.js" rel="script"></script>
+</body>
+</html>

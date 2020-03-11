@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link href="https://fonts.googleapis.com/css?family=Roboto:100i,300,400,500,700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="assets/css/styles.css">
+</head>
+<body class="index-page">
+<main>
+    <section class="section-infos">
+        <h1>Bonjour <span class="pseudo"></span></h1>
+        <p class="email"></p>
+    </section>
+    <div>
+        <section class="section-favorites hide">
+            <h2>Mes films favoris</h2>
+            <div class="container movie-list"></div>
+        </section>
+        <section class="section-movie">
+            <h2>Une envie de nouveauté ?</h2>
+            <form action="#" class="form-search">
+                <span>
+                    <input type="text" name="searchData" id="searchData" minlength="1" required>
+                    <label for="searchData">Chercher un film...</label>
+                </span>
+                <button type="submit">Valider</button>
+            </form>
+            <div id="moviePopin">
+                <article></article>
+            </div>
+            <div id="movieList" class="movie-list"></div>
+        </section>
+    </div>
+</main>
+<script src="assets/js/app.js" rel="script"></script>
+</body>
+</html>
