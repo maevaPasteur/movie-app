@@ -199,9 +199,16 @@ form input:valid + label {
 .index-page main {
     display: flex;
 }
-.index-page main > div {
+.index-page main > div:first-of-type {
+    width: 240px;
+    padding: 20px;
+    position: fixed;
+    height: 100vh;
+}
+.index-page main > div:last-of-type {
     width: calc(100vw - 240px);
     padding: 20px;
+    margin-left: 280px;
 }
 .section-infos {
     padding: 20px;
@@ -261,12 +268,14 @@ figure img {
     width: 100%;
     height: 100%;
 }
+#moviePopin {
+    transition: ease-out .8s;
+}
 #moviePopin:not(.open) {
     pointer-events: none;
+    transform: translateY(20px);
+    filter: blur(10px);
     opacity: 0;
-}
-#moviePopin.open {
-    animation: anim1 ease-out .5s forwards;
 }
 #moviePopin.close {
     animation: anim2 ease-out .5s forwards;
@@ -363,4 +372,25 @@ figcaption p:hover {
 }
 article {
     position: relative;
+}
+.section-genres {
+    padding-top: 40px;
+}
+
+.section-favorites .movie-list article {
+    width: calc((100% - 100px) / 6);
+    padding-right: 20px;
+}
+.section-favorites .movie-list article:nth-of-type(6n) {
+    padding-right: 0;
+}
+.form-search {
+    display: flex;
+}
+.form-search button {
+    width: 150px;
+    margin-left: 20px;
+}
+.form-search > span {
+    width: 100%;
 }
