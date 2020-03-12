@@ -20,7 +20,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const favoriteContainer = document.querySelector(".section-favorites .container");
     const moviePopin = document.querySelector('#moviePopin article');
     const movieList = document.querySelector('#movieList');
-    const genreList = document.querySelector('.section-genres');
+    const genreList = document.querySelector('.section-genres .container');
+    const lastViewContainer = document.querySelector('.section-lastview .container');
     let userId, favorites = [];
 
 
@@ -51,9 +52,7 @@ document.addEventListener('DOMContentLoaded', () => {
             else {
                 console.error(apiResponse.statusText);
             }
-        })
-            .then( jsonData => {
-                console.log(jsonData);
+        }).then( jsonData => {
                 updateLocalStorage(jsonData.data.identity['_id'], email, password, pseudo);
                 window.location.href = 'index.html';
             })
@@ -87,7 +86,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }).then( jsonData => {
                 if(jsonData) {
                     updateLocalStorage(jsonData.data.identity['_id'], email, pw, jsonData.data.identity['pseudo']);
-                    console.log(jsonData);
                     window.location.href = 'index.html';
                 }
             })
@@ -138,10 +136,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
                 jsonData.data.favorite.forEach(item => {
                     let id = item.id;
-                    if(!favorites.includes(id)) {
-                        favorites.push(id);
+                    let favoriteMovie = {
+                        'movieId' : id,
+                        'favoriteId' : item._id
+                    };
+                    if ( !favorites.some(e => e.id === id) ) {
+                        favorites.push(favoriteMovie);
                         getMovieData(id).then((movieData) => {
-                            favoriteContainer.innerHTML += displayMovie(movieData.id, movieData.title, movieData.poster_path, true)
+                            favoriteContainer.innerHTML += displayMovie(movieData.id, movieData.title, movieData.poster_path, true);
                         });
                     }
                 });
@@ -183,6 +185,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const initPopin = movieId => {
         getMovieData(movieId).then(data => {
+            addToLastViewMovies(movieId, data.title, data.poster_path, favorites.some(e => e.movieId === movieId));
             let genres = '';
             if(data.genres.length) {
                 genres += '<div class="list-genres">';
@@ -233,9 +236,11 @@ document.addEventListener('DOMContentLoaded', () => {
             this.scrollToList();
         }
         scrollToList() {
-            movieList.scrollIntoView({
-                behavior: 'smooth'
-            });
+            setTimeout(() => {
+                movieList.scrollIntoView({
+                    behavior: 'smooth'
+                });
+            }, 300)
         }
         getMovies() {
             fetch(this.url)
@@ -245,40 +250,8 @@ document.addEventListener('DOMContentLoaded', () => {
                         let isFavoriteMovie = favorites.includes(movie.id);
                         movieList.innerHTML += displayMovie(movie.id, movie.title, movie.poster_path, isFavoriteMovie);
                     });
-                    document.querySelectorAll('[data-favorite="false"]').forEach(favoriteBtn => {
-                        favoriteBtn.addEventListener('click', () => {
-                            if(!favorites.includes(favoriteBtn.dataset.id)) {
-                                this.addToFavorites(favoriteBtn);
-                                favorites.push(favoriteBtn.dataset.id)
-                            }
-                        })
-                    });
                 })
                 .catch( err => console.error(err) );
-        }
-        addToFavorites(btn) {
-            favoriteSection.classList.remove('hide');
-            const data = {
-                author: userId,
-                id: btn.dataset.id,
-                name: btn.dataset.title
-            };
-            fetch( 'https://api.dwsapp.io/api/favorite', {
-                method: 'POST',
-                body: JSON.stringify(data),
-                headers: {'Content-Type': 'application/json'}
-            }).then( apiResponse => {
-                if( apiResponse.ok ) return apiResponse.json();
-            }).then( jsonData => {
-                if(jsonData) {
-                    btn.setAttribute('data-favorite', 'true');
-                    getMovieData(data.id).then(movieData => {
-                        favoriteContainer.innerHTML += displayMovie(movieData.id, movieData.title, movieData.poster_path, true)
-                    });
-                }
-            }).catch( apiError => {
-                console.error(apiError);
-            });
         }
     }
 
@@ -319,6 +292,102 @@ document.addEventListener('DOMContentLoaded', () => {
             .catch( err => console.error(err) );
     };
 
+    /**
+     * Add a movie to the last view list
+     * Saved on local storage
+     * @param id (film)
+     * @param title (film)
+     * @param poster (film)
+     * @param isFavorite : boolean
+     */
+    const addToLastViewMovies = (id, title, poster, isFavorite) => {
+        lastViewContainer.parentElement.classList.remove('hide');
+        let lastSessionObject = sessionStorage.getItem("appFilm");
+        let lastSession = JSON.parse(lastSessionObject);
+        let movie = {
+            'id': id,
+            'title': title,
+            'poster': poster,
+            'isFavorite': isFavorite
+        };
+        if(!lastSession.view) {
+            lastSession.view = [];
+            lastSession.view.push(movie);
+            lastViewContainer.innerHTML += displayMovie(id, title, poster, isFavorite);
+        } else  if(!lastSession.view.some(e => e.id === id)) {
+            lastSession.view.push(movie);
+            lastViewContainer.innerHTML += displayMovie(id, title, poster, isFavorite);
+        }
+        sessionStorage.setItem('appFilm', JSON.stringify(lastSession));
+    };
+
+    const showLastViewMovies = () => {
+        let lastSessionObject = sessionStorage.getItem("appFilm");
+        let lastSession = JSON.parse(lastSessionObject);
+        if(lastSession.view) {
+            lastSession.view.forEach(movie => {
+                console.log(movie);
+                lastViewContainer.parentElement.classList.remove('hide');
+                lastViewContainer.innerHTML += displayMovie(movie.id, movie.title, movie.poster, movie.isFavorite)
+            })
+        }
+    };
+
+    const removeFromFavorites = btn => {
+        let movieId = btn.dataset.id;
+        let favoriteId = btn.dataset.favoriteId;
+        console.log('fav', favoriteId);
+        console.log('id', movieId);
+        favorites = favorites.filter(item => item !== movieId);
+        fetch( `https://api.dwsapp.io/api/favorite/${favoriteId}`, {
+            method: 'DELETE',
+            headers: {'Content-Type': 'application/json'}
+        }).then( apiResponse => {
+            if( apiResponse.ok ) return apiResponse.json();
+        }).then( jsonData => {
+            if(jsonData) {
+                console.log(jsonData);
+            }
+        }).catch( apiError => {
+            console.error(apiError);
+        });
+    };
+
+    const addToFavorites = btn => {
+        let movieId = btn.dataset.id;
+        let movieTitle = btn.dataset.title;
+        console.log(favorites);
+        if(!favorites.some(e => e.id === movieId)) {
+            const data = {
+                author: userId,
+                id: movieId,
+                title: movieTitle
+            };
+            fetch( 'https://api.dwsapp.io/api/favorite', {
+                method: 'POST',
+                body: JSON.stringify(data),
+                headers: {'Content-Type': 'application/json'}
+            }).then( apiResponse => {
+                if( apiResponse.ok ) return apiResponse.json();
+            }).then( jsonData => {
+                if(jsonData) {
+                    favoriteSection.classList.remove('hide');
+                    let favoriteMovie = {
+                        'movieId' : movieId,
+                        'favoriteId' : jsonData.data._id
+                    };
+                    favorites.push(favoriteMovie);
+                    btn.setAttribute('data-favorite', 'true');
+                    getMovieData(data.id).then(movieData => {
+                        favoriteContainer.innerHTML += displayMovie(movieData.id, movieData.title, movieData.poster_path, true)
+                    });
+                }
+            }).catch( apiError => {
+                console.error(apiError);
+            });
+        }
+    };
+
 
 
     /*******************************************************************************************************************
@@ -347,10 +416,15 @@ document.addEventListener('DOMContentLoaded', () => {
                     e.preventDefault();
                     new MovieList(`https://api.themoviedb.org/3/discover/movie?api_key=6fd32a8aef5f85cabc50cbec6a47f92f&with_genres=${e.target.dataset.genre}`);
                 } else if(e.target.closest('figcaption')) {
-                    initPopin(e.target.closest('figcaption').dataset.id)
+                    initPopin(e.target.closest('figcaption').dataset.id);
+                } else if (e.target.closest('[data-favorite="true"]')) {
+                    removeFromFavorites(e.target.closest('[data-favorite]'));
+                } else if (e.target.closest('[data-favorite="false"]')) {
+                    addToFavorites(e.target.closest('[data-favorite]'));
                 }
             });
             updateAccountInfos();
+            showLastViewMovies();
             getGenresList();
             initSearchForm();
             getFavorites();

@@ -196,24 +196,24 @@ form input:valid + label {
 .index-page {
     overflow: auto;
 }
-.index-page main {
-    display: flex;
+.wrapper {
+    display: block;
+    max-width: 1400px;
+    margin: auto;
+    padding: 50px 20px;
 }
-.index-page main > div:first-of-type {
-    width: 240px;
+.index-page header {
+    border-bottom: solid 2px #333;
     padding: 20px;
     position: fixed;
-    height: 100vh;
+    width: 100%;
+    background: #000;
+    top: 0;
+    left: 0;
+    z-index: 2;
 }
-.index-page main > div:last-of-type {
-    width: calc(100vw - 240px);
-    padding: 20px;
-    margin-left: 280px;
-}
-.section-infos {
-    padding: 20px;
-    width: 200px;
-    background-color: #222;
+.index-page {
+    padding-top: 100px;
 }
 figure {
     transition: all .3s linear;
